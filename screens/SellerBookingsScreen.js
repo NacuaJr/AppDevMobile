@@ -1,6 +1,14 @@
 // screens/SellerBookingsScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../supabase';
@@ -9,8 +17,10 @@ export default function SellerBookingsScreen() {
   const navigation = useNavigation();
   const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
 
   const fetchBookings = async () => {
+    setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
     let query = supabase
@@ -25,6 +35,18 @@ export default function SellerBookingsScreen() {
 
     const { data, error } = await query;
     if (!error) setBookings(data);
+    setLoading(false);
+  };
+
+  const confirmStatusChange = (bookingId, newStatus) => {
+    Alert.alert(
+      `Change status to "${newStatus}"?`,
+      `Are you sure you want to mark this booking as "${newStatus}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Yes', onPress: () => updateBookingStatus(bookingId, newStatus) },
+      ]
+    );
   };
 
   const updateBookingStatus = async (bookingId, status) => {
@@ -34,6 +56,15 @@ export default function SellerBookingsScreen() {
       .eq('id', bookingId);
 
     if (!error) fetchBookings();
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'confirmed': return '#4CAF50';
+      case 'cancelled': return '#F44336';
+      case 'pending': return '#FF9800';
+      default: return '#333';
+    }
   };
 
   const filteredBookings =
@@ -49,7 +80,7 @@ export default function SellerBookingsScreen() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={28} color="white" />
+          <Ionicons name="arrow-back" size={28} color="#5D4037" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Seller Bookings</Text>
       </View>
@@ -64,12 +95,19 @@ export default function SellerBookingsScreen() {
             ]}
             onPress={() => setFilter(status)}
           >
-            <Text style={styles.filterText}>{status}</Text>
+            <Text style={[
+              styles.filterText,
+              filter === status && styles.activeFilterText
+            ]}>
+              {status}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {filteredBookings.length === 0 ? (
+      {loading ? (
+        <ActivityIndicator size="large" color="#8D6E63" style={{ marginTop: 40 }} />
+      ) : filteredBookings.length === 0 ? (
         <Text style={styles.noText}>No bookings found.</Text>
       ) : (
         <FlatList
@@ -78,24 +116,26 @@ export default function SellerBookingsScreen() {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>
-                {item.customers.full_name} booked {item.catering_services.title}
+                {item.customers.full_name} booked <Text style={styles.serviceText}>{item.catering_services.title}</Text>
               </Text>
               <Text style={styles.cardText}>
                 Date: {new Date(item.booking_date).toLocaleString()}
               </Text>
-              <Text style={styles.cardText}>Status: {item.status}</Text>
+              <Text style={[styles.cardText, { color: getStatusColor(item.status) }]}>
+                Status: {item.status}
+              </Text>
 
               {item.status === 'pending' && (
                 <View style={styles.actionRow}>
                   <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: 'green' }]}
-                    onPress={() => updateBookingStatus(item.id, 'confirmed')}
+                    style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
+                    onPress={() => confirmStatusChange(item.id, 'confirmed')}
                   >
                     <Text style={styles.buttonText}>Approve</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: 'red' }]}
-                    onPress={() => updateBookingStatus(item.id, 'cancelled')}
+                    style={[styles.actionButton, { backgroundColor: '#F44336' }]}
+                    onPress={() => confirmStatusChange(item.id, 'cancelled')}
                   >
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
@@ -103,6 +143,8 @@ export default function SellerBookingsScreen() {
               )}
             </View>
           )}
+          refreshing={loading}
+          onRefresh={fetchBookings}
           contentContainerStyle={{ paddingBottom: 100 }}
         />
       )}
@@ -113,8 +155,9 @@ export default function SellerBookingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
-    padding: 16,
+    backgroundColor: '#FFF8F0',
+    paddingTop: 30,  // Increased top padding
+    paddingHorizontal: 16,
   },
   headerRow: {
     flexDirection: 'row',
@@ -122,8 +165,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerText: {
-    color: 'white',
-    fontSize: 22,
+    color: '#5D4037',
+    fontSize: 24,
+    fontWeight: 'bold',
     marginLeft: 16,
   },
   filterRow: {
@@ -133,53 +177,69 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   filterButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: '#333',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: '#D7CCC8',
     marginRight: 8,
     marginBottom: 8,
   },
   activeFilter: {
-    backgroundColor: 'white',
+    backgroundColor: '#5D4037',
   },
   filterText: {
-    color: 'white',
+    color: '#5D4037',
     fontWeight: 'bold',
+    textTransform: 'capitalize',
+  },
+  activeFilterText: {
+    color: 'white',
   },
   noText: {
-    color: 'white',
+    color: '#5D4037',
     textAlign: 'center',
     marginTop: 40,
+    fontSize: 16,
   },
   card: {
-    backgroundColor: '#1a1a1a',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: '#FFE0B2',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   cardTitle: {
-    color: 'white',
+    color: '#5D4037',
     fontSize: 16,
     fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  serviceText: {
+    color: '#BF360C',
   },
   cardText: {
-    color: 'white',
+    color: '#5D4037',
+    fontSize: 14,
     marginTop: 4,
   },
   actionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
+    justifyContent: 'space-between',
+    marginTop: 14,
   },
   actionButton: {
-    padding: 8,
-    borderRadius: 6,
-    width: '45%',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
     alignItems: 'center',
+    width: '48%',
   },
   buttonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import { supabase } from '../supabase';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -10,66 +18,40 @@ export default function RegisterScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // Common
   const [contactNumber, setContactNumber] = useState('');
 
-  // Seller fields
   const [businessName, setBusinessName] = useState('');
   const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
 
-  // Customer fields
   const [fullName, setFullName] = useState('');
   const [address, setAddress] = useState('');
 
   const handleRegister = async () => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-  
-    if (error) {
-      return Alert.alert('Signup Failed', error.message);
-    }
-  
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if (error) return Alert.alert('Signup Failed', error.message);
+
     const user = data.user;
-  
-    if (!user) {
-      return Alert.alert('Signup Success', 'Please check your email to confirm your account before logging in.');
-    }
-  
+    if (!user)
+      return Alert.alert('Signup Success', 'Check your email to confirm your account.');
+
     const userId = user.id;
-  
-    // Insert into 'users' table
+
     const { error: insertUserError } = await supabase.from('users').insert([
-      { id: userId, email, password, role }
+      { id: userId, email, password, role },
     ]);
-  
-    if (insertUserError) {
-      return Alert.alert('Error', insertUserError.message);
-    }
-    
+    if (insertUserError) return Alert.alert('Error', insertUserError.message);
+
     if (role === 'seller') {
       const { error: sellerError } = await supabase.from('sellers').insert([
-        {
-          id: userId,
-          business_name: businessName,
-          location,
-          bio,
-          contact_number: contactNumber
-        }
+        { id: userId, business_name: businessName, location, bio, contact_number: contactNumber },
       ]);
       if (sellerError) return Alert.alert('Error saving seller info', sellerError.message);
       navigation.replace('SellerDashboard');
     } else {
       const { error: customerError } = await supabase.from('customers').insert([
-        {
-          id: userId,
-          full_name: fullName,
-          address,
-          contact_number: contactNumber
-        }
+        { id: userId, full_name: fullName, address, contact_number: contactNumber },
       ]);
       if (customerError) return Alert.alert('Error saving customer info', customerError.message);
       navigation.replace('CustomerDashboard');
@@ -80,20 +62,69 @@ export default function RegisterScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Register as {role === 'seller' ? 'Seller' : 'Customer'}</Text>
 
-      <TextInput placeholder="Email" placeholderTextColor="#888" value={email} onChangeText={setEmail} style={styles.input} />
-      <TextInput placeholder="Password" placeholderTextColor="#888" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
-      <TextInput placeholder="Contact Number" placeholderTextColor="#888" value={contactNumber} onChangeText={setContactNumber} style={styles.input} />
+      <TextInput
+        placeholder="Email"
+        placeholderTextColor="#999"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Password"
+        placeholderTextColor="#999"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Contact Number"
+        placeholderTextColor="#999"
+        value={contactNumber}
+        onChangeText={setContactNumber}
+        style={styles.input}
+      />
 
       {role === 'seller' ? (
         <>
-          <TextInput placeholder="Business Name" placeholderTextColor="#888" value={businessName} onChangeText={setBusinessName} style={styles.input} />
-          <TextInput placeholder="Location" placeholderTextColor="#888" value={location} onChangeText={setLocation} style={styles.input} />
-          <TextInput placeholder="Bio" placeholderTextColor="#888" value={bio} onChangeText={setBio} style={styles.input} />
+          <TextInput
+            placeholder="Business Name"
+            placeholderTextColor="#999"
+            value={businessName}
+            onChangeText={setBusinessName}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Location"
+            placeholderTextColor="#999"
+            value={location}
+            onChangeText={setLocation}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Bio"
+            placeholderTextColor="#999"
+            value={bio}
+            onChangeText={setBio}
+            style={styles.input}
+          />
         </>
       ) : (
         <>
-          <TextInput placeholder="Full Name" placeholderTextColor="#888" value={fullName} onChangeText={setFullName} style={styles.input} />
-          <TextInput placeholder="Address" placeholderTextColor="#888" value={address} onChangeText={setAddress} style={styles.input} />
+          <TextInput
+            placeholder="Full Name"
+            placeholderTextColor="#999"
+            value={fullName}
+            onChangeText={setFullName}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Address"
+            placeholderTextColor="#999"
+            value={address}
+            onChangeText={setAddress}
+            style={styles.input}
+          />
         </>
       )}
 
@@ -106,36 +137,50 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1, // Scrollable container
-    backgroundColor: 'black', // App-wide dark theme
-    padding: 20, // Inner padding for spacing
-    alignItems: 'center', // Center horizontally
+    flexGrow: 1,
+    backgroundColor: '#fff7f0', // subtle warm background
+    padding: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 26, // Large heading
-    color: 'white', // White text
-    marginVertical: 20, // Space above and below
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#FF6B00',
+    marginBottom: 24,
   },
   input: {
-    width: '100%', // Full width
-    height: 50, // Input height
-    borderColor: 'white', // Input border
-    borderWidth: 1, // Border thickness
-    borderRadius: 8, // Rounded input corners
-    paddingHorizontal: 10, // Internal input padding
-    color: 'white', // White input text
-    marginBottom: 15, // Gap between inputs
+    width: '100%',
+    height: 50,
+    backgroundColor: '#fff',
+    borderColor: '#FF6B00',
+    borderWidth: 1.2,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    color: '#333',
+    marginBottom: 14,
+    fontSize: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
   button: {
-    backgroundColor: 'white', // White button
-    padding: 15, // Button padding
-    borderRadius: 8, // Rounded button
-    width: '100%', // Full width
-    marginTop: 10, // Top spacing
+    backgroundColor: '#FF6B00',
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    width: '100%',
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
   },
   buttonText: {
-    textAlign: 'center', // Centered text
-    color: 'black', // Black button text
-    fontWeight: 'bold', // Emphasized label
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

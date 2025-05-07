@@ -17,10 +17,8 @@ import { useNavigation } from '@react-navigation/native';
 export default function SellerDashboard() {
   const navigation = useNavigation();
   const [services, setServices] = useState([]);
-
   const [modalVisible, setModalVisible] = useState(false);
   const [viewModalVisible, setViewModalVisible] = useState(false);
-
   const [selectedService, setSelectedService] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -122,7 +120,7 @@ export default function SellerDashboard() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
-          <Ionicons name="person-circle-outline" size={32} color="white" />
+          <Ionicons name="person-circle-outline" size={32} color="#8B2500" />
         </TouchableOpacity>
       </View>
 
@@ -155,7 +153,7 @@ export default function SellerDashboard() {
         style={styles.floatingButton}
         onPress={() => setModalVisible(true)}
       >
-        <Ionicons name="add" size={32} color="black" />
+        <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
       {/* Add Service Modal */}
@@ -189,7 +187,7 @@ export default function SellerDashboard() {
               selectedValue={category}
               onValueChange={(value) => setCategory(value)}
               style={styles.picker}
-              dropdownIconColor="white"
+              dropdownIconColor="#8B2500"
             >
               <Picker.Item label="Wedding" value="wedding" />
               <Picker.Item label="Corporate" value="corporate" />
@@ -246,7 +244,7 @@ export default function SellerDashboard() {
               onValueChange={(value) => setCategory(value)}
               style={styles.picker}
               enabled={isEditing}
-              dropdownIconColor="white"
+              dropdownIconColor="#8B2500"
             >
               <Picker.Item label="Wedding" value="wedding" />
               <Picker.Item label="Corporate" value="corporate" />
@@ -295,7 +293,7 @@ export default function SellerDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: '#FFF8F0',
     padding: 16,
   },
   headerRow: {
@@ -303,37 +301,43 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   heading: {
-    fontSize: 22,
-    color: 'white',
+    fontSize: 24,
+    color: '#6B3E26',
     marginTop: 20,
     marginBottom: 12,
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   text: {
-    color: 'white',
+    color: '#6B3E26',
     textAlign: 'center',
     marginBottom: 10,
   },
   card: {
-    backgroundColor: '#1a1a1a',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: '#FFE5B4',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: '#D3A762',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cardTitle: {
-    color: 'white',
-    fontSize: 16,
+    color: '#8B2500',
+    fontSize: 18,
     fontWeight: 'bold',
   },
   cardText: {
-    color: 'white',
+    color: '#5A3B1A',
     marginTop: 4,
   },
   floatingButton: {
     position: 'absolute',
     bottom: 30,
     right: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#FFB703',
     borderRadius: 30,
     padding: 12,
     elevation: 10,
@@ -343,9 +347,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   manageBookingsButton: {
-    backgroundColor: 'white',
+    backgroundColor: '#F95738',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
     marginVertical: 10,
   },
@@ -353,33 +357,35 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   modalContent: {
-    backgroundColor: 'black',
+    backgroundColor: '#FFF8F0',
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     width: '90%',
   },
   modalTitle: {
-    color: 'white',
+    color: '#8B2500',
     fontSize: 20,
     marginBottom: 16,
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   input: {
     borderWidth: 1,
-    borderColor: 'white',
-    color: 'white',
+    borderColor: '#D4A373',
+    color: '#6B3E26',
+    backgroundColor: '#FFF4E1',
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 10,
   },
   picker: {
-    color: 'white',
-    backgroundColor: '#222',
+    color: '#6B3E26',
+    backgroundColor: '#FFEBD8',
     marginBottom: 10,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   modalActions: {
     flexDirection: 'row',
@@ -388,15 +394,15 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   button: {
-    backgroundColor: 'white',
+    backgroundColor: '#F4A261',
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 10,
     width: '30%',
     alignItems: 'center',
     marginTop: 10,
   },
   buttonText: {
-    color: 'black',
+    color: '#fff',
     fontWeight: 'bold',
   },
 });
