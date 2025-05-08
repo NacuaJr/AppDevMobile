@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF8F0',
-    paddingTop: 30,  // Increased top padding
+    paddingTop: 50,  // Increased top padding
     paddingHorizontal: 16,
   },
   headerRow: {

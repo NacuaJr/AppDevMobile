@@ -138,7 +138,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#fff7f0', // subtle warm background
+    backgroundColor: '#9E7A6A', // subtle warm background
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#FF6B00',
+    color: 'white',
     marginBottom: 24,
   },
   input: {

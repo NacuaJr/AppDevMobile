@@ -51,7 +51,7 @@ export default function LoginScreen() {
       imageStyle={styles.backgroundImage}
     >
       <View style={styles.overlay}>
-        <Text style={styles.title}>" FEASTBOOK "</Text>
+        <Text style={styles.title}> FEASTBOOK </Text>
 
         <TextInput
           placeholder="Email"
@@ -111,14 +111,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    color: '#FFA500',
+    color: '#FF8C42',
     fontWeight: 'bold',
     marginBottom: 30,
   },
   input: {
     width: '100%',
     height: 50,
-    borderColor: '#FFA500',
+    borderColor: '#FF8C42',
     borderWidth: 2,
     borderRadius: 10,
     paddingHorizontal: 15,
@@ -137,18 +137,18 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#FFA500',
+    borderColor: '#FF8C42',
     borderRadius: 8,
     marginHorizontal: 5,
     fontSize: 14,
   },
   roleSelected: {
-    backgroundColor: '#FFA500',
+    backgroundColor: '#FF8C42',
     color: 'black',
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#FFA500',
+    backgroundColor: '#FF8C42',
     padding: 15,
     borderRadius: 10,
     width: '100%',
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   linkText: {
-    color: '#ffdab9',
+    color: '#FF8C42',
     marginTop: 20,
     fontSize: 13,
   },

@@ -6,13 +6,16 @@ import {
   TextInput,
   StyleSheet,
   Alert,
+  SafeAreaView,
+  ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../supabase';
-import BookingDateSelector from '../screens/BookingDateSelector'; // Import your reusable component
+import BookingDateSelector from '../screens/BookingDateSelector';
 
 export default function CustomerBookingScreen({ route, navigation }) {
   const { service, session } = route.params;
-  const [bookingDate, setBookingDate] = useState(null); // Store selected date
+  const [bookingDate, setBookingDate] = useState(null);
   const [specialRequests, setSpecialRequests] = useState('');
 
   const handleBooking = async () => {
@@ -34,7 +37,6 @@ export default function CustomerBookingScreen({ route, navigation }) {
       );
     }
   
-    // Fetch the current user from Supabase
     const {
       data: { user },
       error: authError,
@@ -46,7 +48,6 @@ export default function CustomerBookingScreen({ route, navigation }) {
       return Alert.alert('Error', 'User not logged in.');
     }
   
-    // Confirm this is a customer (validate against customers table)
     const { data: customerProfile, error: profileError } = await supabase
       .from('customers')
       .select('id')
@@ -58,7 +59,6 @@ export default function CustomerBookingScreen({ route, navigation }) {
       return Alert.alert('Error', 'Customer profile not found.');
     }
   
-    // Proceed with inserting the booking
     const { error: bookingError } = await supabase.from('bookings').insert([
       {
         service_id: service.id,
@@ -78,87 +78,195 @@ export default function CustomerBookingScreen({ route, navigation }) {
     Alert.alert('Success', 'Booking request sent!');
     navigation.goBack();
   };
-  
-  
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Book Service</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={28} color="#FFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Book Service</Text>
+          <View style={styles.headerRightPlaceholder} />
+        </View>
 
-      <View style={styles.card}>
-        <Text style={styles.title}>{service.title}</Text>
-        <Text style={styles.text}>Price: ${service.price}</Text>
-        <Text style={styles.text}>Category: {service.category}</Text>
-        <Text style={styles.text}>Provider: {service.sellers?.business_name}</Text>
-        <Text style={styles.text}>{service.description}</Text>
-      </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{service.title}</Text>
+          <Text style={styles.cardDescription}>{service.description}</Text>
+          
+          <View style={styles.cardDetails}>
+            <View style={styles.detailItem}>
+              <Ionicons name="pricetag-outline" size={18} color="#8B4513" />
+              <Text style={styles.detailText}>${service.price}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Ionicons name="business-outline" size={18} color="#8B4513" />
+              <Text style={styles.detailText}>{service.sellers?.business_name}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryBadgeText}>{service.category}</Text>
+          </View>
+        </View>
 
-      <BookingDateSelector onConfirm={setBookingDate} />
+        <Text style={styles.sectionTitle}>Select Booking Date</Text>
+        <BookingDateSelector onConfirm={setBookingDate} />
 
-      <TextInput
-        style={styles.textArea}
-        placeholder="Special requests (optional)"
-        placeholderTextColor="#ccc"
-        multiline
-        numberOfLines={4}
-        value={specialRequests}
-        onChangeText={setSpecialRequests}
-      />
+        <Text style={styles.sectionTitle}>Special Requests</Text>
+        <TextInput
+          style={styles.textArea}
+          placeholder="Any dietary restrictions or special notes..."
+          placeholderTextColor="#D4A373"
+          multiline
+          numberOfLines={4}
+          value={specialRequests}
+          onChangeText={setSpecialRequests}
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleBooking}>
-        <Text style={styles.buttonText}>Book Now</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity 
+          style={styles.bookButton}
+          onPress={handleBooking}
+        >
+          <Text style={styles.bookButtonText}>Confirm Booking</Text>
+          <Ionicons name="arrow-forward" size={20} color="#FFF" />
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, // Full height
-    backgroundColor: 'black', // ⚫ background
-    padding: 16, // Outer spacing
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFF9F2',
   },
-  heading: {
-    fontSize: 24, // Large title
-    color: 'white', // ⚪ text
-    fontWeight: 'bold', // Bold heading
-    marginBottom: 20, // Space under heading
+  container: {
+    paddingBottom: 40,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 45,
+    paddingBottom: 15,
+    backgroundColor: '#FF6B35',
+    marginHorizontal: -16,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  backButton: {
+    padding: 5,
+  },
+  headerTitle: {
+    fontSize: 22,
+    color: '#FFF',
+    fontWeight: '700',
+    fontFamily: 'sans-serif-condensed',
+  },
+  headerRightPlaceholder: {
+    width: 28,
   },
   card: {
-    backgroundColor: 'white', // ⚪ service card
-    borderRadius: 10, // Rounded corners
-    padding: 16, // Inner padding
-    marginBottom: 20, // Space under card
+    backgroundColor: '#FFF',
+    padding: 18,
+    borderRadius: 14,
+    marginBottom: 20,
+    shadowColor: '#D4A373',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+    borderLeftWidth: 5,
+    borderLeftColor: '#FF8C42',
   },
-  title: {
-    fontSize: 18, // Title text
-    fontWeight: 'bold', // Emphasized
-    color: 'black', // ⚫ text
-    marginBottom: 6, // Below title
+  cardTitle: {
+    color: '#5A3921',
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 8,
   },
-  text: {
-    fontSize: 14, // Standard text size
-    color: 'black', // ⚫ text
-    marginBottom: 4, // Spacing between lines
+  cardDescription: {
+    color: '#7A5C3C',
+    fontSize: 15,
+    marginBottom: 15,
+    lineHeight: 22,
+  },
+  cardDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  detailText: {
+    color: '#8B4513',
+    fontSize: 15,
+    marginLeft: 8,
+    fontWeight: '500',
+  },
+  categoryBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFE5D4',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  categoryBadgeText: {
+    color: '#8B4513',
+    fontSize: 13,
+    fontWeight: '500',
+    textTransform: 'capitalize',
+  },
+  sectionTitle: {
+    color: '#5A3921',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+    marginTop: 10,
   },
   textArea: {
-    borderWidth: 1, // Input border
-    borderColor: 'white', // ⚪ border
-    borderRadius: 8, // Rounded input
-    padding: 12, // Inner padding
-    color: 'white', // ⚪ text
-    height: 100, // Textarea height
-    marginBottom: 16, // Space under textarea
-    textAlignVertical: 'top', // Text starts at top
+    borderWidth: 1,
+    borderColor: '#E8C4A2',
+    backgroundColor: '#FFF',
+    color: '#5A3921',
+    borderRadius: 12,
+    padding: 15,
+    height: 120,
+    textAlignVertical: 'top',
+    fontSize: 15,
+    marginBottom: 20,
   },
-  button: {
-    backgroundColor: 'white', // ⚪ button
-    padding: 14, // Inner padding
-    borderRadius: 8, // Rounded corners
-    alignItems: 'center', // Center text
+  bookButton: {
+    backgroundColor: '#FF6B35',
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  buttonText: {
-    color: 'black', // ⚫ text
-    fontWeight: 'bold', // Bold text
-    fontSize: 16, // Readable size
+  bookButtonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '600',
+    marginRight: 10,
   },
 });
